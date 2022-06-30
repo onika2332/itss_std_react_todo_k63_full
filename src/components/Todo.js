@@ -7,13 +7,14 @@ import Filter from './Filter';
 
 /* カスタムフック */
 import useStorage from '../hooks/storage';
+import useFbStorage from '../hooks/firebaseStorage';
 
 /* ライブラリ */
-import {getKey} from "../lib/util";
+import { getKey } from "../lib/util";
 
 function Todo() {
-  const [items, putItems, clearItems] = useStorage();
-  
+  const [items, addItem, updateItem, clearItems] = useFbStorage();
+
   const [filter, setFilter] = React.useState('ALL');
 
   const displayItems = items.filter(item => {
@@ -21,7 +22,7 @@ function Todo() {
     if (filter === 'TODO') return !item.done;
     if (filter === 'DONE') return item.done;
   });
-  
+
   const handleCheck = checked => {
     const newItems = items.map(item => {
       if (item.key === checked.key) {
@@ -29,13 +30,13 @@ function Todo() {
       }
       return item;
     });
-    putItems(newItems);
+    updateItem(newItems);
   };
-  
+
   const handleAdd = text => {
-    putItems([...items, { key: getKey(), text, done: false }]);
+    addItem({ key: getKey(), text, done: false });
   };
-  
+
   const handleFilterChange = value => setFilter(value);
 
   return (
@@ -54,7 +55,7 @@ function Todo() {
         value={filter}
       />
       {displayItems.map(item => (
-        <TodoItem 
+        <TodoItem
           key={item.key}
           item={item}
           onCheck={handleCheck}
